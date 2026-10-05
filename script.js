@@ -45,8 +45,7 @@ function addMessage(text, sender) {
     const messageElement = document.createElement("div");
 
     messageElement.className = "message " + sender;
-    messageElement.textContent = text;
-
+    messageElement.innerHTML = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/\|/g, " ").replace(/\n/g, "<br>");
     chatArea.appendChild(messageElement);
 
     messageElement.scrollIntoView({
