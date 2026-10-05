@@ -37,12 +37,48 @@ async function sendMessage() {
             body: JSON.stringify({ message: message })
         });
 
-        const data = await response.json();
-
-        thinkingMessage.remove();
+     thinkingMessage.remove(); 
       
-        addMessage(data.reply || "Sorry, I couldn't respond.", "kora");
+      const responseMessage = addMessage("", "kora");
 
+const reader = response.body.getReader();
+const decoder = new TextDecoder();
+
+let buffer = "";
+let fullText = "";
+
+while (true) {
+    const { value, done } = await reader.read();
+
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+
+    const lines = buffer.split("\n");
+    buffer = lines.pop();
+
+    for (const line of lines) {
+        if (!line.startsWith("data: ")) continue;
+
+        const data = line.slice(6);
+
+        if (data === "[DONE]") continue;
+
+        const text = JSON.parse(data);
+
+        fullText += text;
+
+        responseMessage.innerHTML = fullText
+            .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+            .replace(/\|/g, " ")
+            .replace(/\n/g, "<br>");
+
+        responseMessage.scrollIntoView({
+            behavior: "smooth"
+        });
+    }
+}
+        
     } catch (error) {
         addMessage("Kora's backend is not connected.", "kora");
     }

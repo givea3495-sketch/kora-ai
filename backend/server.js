@@ -29,14 +29,24 @@ app.post("/chat", async (req, res) => {
   }
 
   try {
-    const response = await openai.responses.create({
-      model: "gpt-6-luna",
-      input: userMessage
-    });
+    res.setHeader("Content-Type", "text/event-stream");
+res.setHeader("Cache-Control", "no-cache");
+res.setHeader("Connection", "keep-alive");
 
-    res.json({
-      reply: response.output_text
-    });
+const stream = await openai.responses.create({
+  model: "gpt-6-luna",
+  input: userMessage,
+  stream: true
+});
+
+for await (const event of stream) {
+  if (event.type === "response.output_text.delta") {
+    res.write(`data: ${JSON.stringify(event.delta)}\n\n`);
+  }
+}
+
+res.write("data: [DONE]\n\n");
+res.end();
 
   } catch (error) {
     console.error("OpenAI error:", error);
