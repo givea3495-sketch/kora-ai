@@ -71,3 +71,22 @@ if (learnCard) {
     input.focus();
   });
 }
+
+
+const businessCard = document.getElementById("businessCard");
+let businessMode = false;
+
+if (businessCard) {
+  businessCard.addEventListener("click", function () {
+    businessMode = true;
+
+    input.placeholder = "Ask Kora about your business";
+
+    addMessage(
+      "Kora Business is ready 💼 Tell me about your business or ask me how to grow it.",
+      "kora"
+    );
+
+    input.focus();
+  });
+}
