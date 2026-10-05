@@ -21,10 +21,15 @@ async function sendMessage() {
     if (message === "") return;
 
     addMessage(message, "user");
+    const thinkingMessage = addMessage("Kora is thinking... 🤔", "kora");
     input.value = "";
 
     try {
-        const response = await fetch("/chat", {
+        const response = await fetch(
+    window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost"
+        ? "http://127.0.0.1:3000/chat"
+        : "/chat",
+    {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -34,6 +39,8 @@ async function sendMessage() {
 
         const data = await response.json();
 
+        thinkingMessage.remove();
+      
         addMessage(data.reply || "Sorry, I couldn't respond.", "kora");
 
     } catch (error) {
@@ -51,6 +58,8 @@ function addMessage(text, sender) {
     messageElement.scrollIntoView({
         behavior: "smooth"
     });
+
+  return messageElement;
 }
 
 const learnCard = document.getElementById("learnCard");
